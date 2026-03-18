@@ -6,6 +6,10 @@ import zipfile
 
 app = Flask(__name__)
 
+# Convert Excel serial date → datetime
+def excel_to_datetime(excel_date):
+    return datetime(1899, 12, 30) + timedelta(days=float(excel_date))
+
 @app.route('/plot', methods=['POST'])
 def plot():
     data = request.get_json()
