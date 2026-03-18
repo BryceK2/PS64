@@ -30,11 +30,15 @@ def plot():
             fig, ax = plt.subplots(figsize=(6,6))
 
             # Draw circles
-            radii = [0.01, 0.02, 0.03]https://github.com/BryceK2/PS64/blob/main/app.py
+            radii = [0.01, 0.02, 0.03]
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
                 ax.text(r + 0.001, -0.002, f"{r:.2f}°", va='center', fontsize=10, fontweight='bold')
+
+            # Draw crosshairs
+            ax.plot([-0.03, 0.03], [0, 0], color='black', lw=1, zorder=0)
+            ax.plot([0, 0], [-0.03, 0.03], color='black', lw=1, zorder=0)
 
             # Scatter
             sc = ax.scatter(xplot, yplot, c=dates, s=50, cmap='jet', edgecolors='none')
