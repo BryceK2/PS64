@@ -2,60 +2,77 @@ from flask import Flask, request, send_file, jsonify
 import matplotlib.pyplot as plt
 import numpy as np
 import io
+import zipfile
 
 app = Flask(__name__)
 
 @app.route('/plot', methods=['POST'])
 def plot():
     """
-    Expects JSON payload:
+    Expects JSON payload like:
     {
-        "x": [...],       # X tilt data
-        "y": [...],       # Y tilt data
-        "dates": [...]    # Excel serial dates or numeric timestamps
+        "sensors": [
+            {
+                "id": "150845",
+                "x": [...],
+                "y": [...],
+                "dates": [...]
+            },
+            {
+                "id": "150940",
+                "x": [...],
+                "y": [...],
+                "dates": [...]
+            }
+        ]
     }
+    Returns a zip of PNGs (one per sensor)
     """
     data = request.get_json()
-    
-    try:
-        xplot = np.array(data['x'])
-        yplot = np.array(data['y'])
-        dates = np.array(data['dates'], dtype=float)
+    sensors = data.get("sensors", [])
 
-        # Swap X/Y if needed (match your MATLAB orientation)
-        xplot, yplot = yplot, xplot
+    if not sensors:
+        return jsonify({"error": "No sensor data provided"}), 400
 
-        fig, ax = plt.subplots(figsize=(6,6))
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zf:
+        for sensor in sensors:
+            sensor_id = sensor.get("id", "unknown")
+            xplot = np.array(sensor["x"])
+            yplot = np.array(sensor["y"])
+            dates = np.array(sensor["dates"], dtype=float)
+            xplot, yplot = yplot, xplot  # swap if needed
 
-        # Draw bullseye rings
-        for r in [0.01, 0.02, 0.03]:
-            theta = np.linspace(0, 2*np.pi, 200)
-            ax.plot(r*np.cos(theta), r*np.sin(theta), color='black')
+            fig, ax = plt.subplots(figsize=(6,6))
 
-        # Scatter plot colored by date
-        sc = ax.scatter(xplot, yplot, c=dates, s=50, cmap='jet', edgecolors='none')
-        cb = plt.colorbar(sc)
-        cb.set_label('Date')
+            # Bullseye rings
+            for r in [0.01, 0.02, 0.03]:
+                theta = np.linspace(0, 2*np.pi, 200)
+                ax.plot(r*np.cos(theta), r*np.sin(theta), color='black')
 
-        # Axis limits and formatting
-        ax.set_xlim(-0.03, 0.03)
-        ax.set_ylim(-0.03, 0.03)
-        ax.set_aspect('equal')
-        ax.tick_params(axis='both', which='major', labelsize=12)
-        ax.set_xticks([0.01, 0.02, 0.03])
-        ax.set_yticks([0.01, 0.02, 0.03])
-        ax.grid(True)
+            # Scatter
+            sc = ax.scatter(xplot, yplot, c=dates, s=50, cmap='jet', edgecolors='none')
+            plt.colorbar(sc, ax=ax, label='Date')
 
-        # Save plot to in-memory buffer
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', dpi=150)
-        buf.seek(0)
-        plt.close(fig)
+            ax.set_xlim(-0.03, 0.03)
+            ax.set_ylim(-0.03, 0.03)
+            ax.set_aspect('equal')
+            ax.set_xticks([0.01, 0.02, 0.03])
+            ax.set_yticks([0.01, 0.02, 0.03])
+            ax.tick_params(axis='both', which='major', labelsize=12)
+            plt.tight_layout()
 
-        return send_file(buf, mimetype='image/png')
+            # Save figure to bytes
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', dpi=150)
+            plt.close(fig)
+            buf.seek(0)
+            
+            # Add PNG to zip
+            zf.writestr(f"{sensor_id}.png", buf.read())
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+    zip_buffer.seek(0)
+    return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, attachment_filename='tilt_plots.zip')
 
 if __name__ == "__main__":
     app.run(debug=True)
