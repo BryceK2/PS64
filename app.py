@@ -30,15 +30,15 @@ def plot():
             fig, ax = plt.subplots(figsize=(6,6))
 
             # Draw circles
-            radii = [0.01, 0.02, 0.03]
+            radii = [0.01, 0.02, 0.03]https://github.com/BryceK2/PS64/blob/main/app.py
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
-                ax.text(r + 0.001, 0, f"{r:.2f}", va='center', fontsize=10, fontweight='bold')
+                ax.text(r + 0.001, -0.002, f"{r:.2f}°", va='center', fontsize=10, fontweight='bold')
 
             # Scatter
             sc = ax.scatter(xplot, yplot, c=dates, s=50, cmap='jet', edgecolors='none')
-            plt.colorbar(sc, ax=ax, label='Date')
+            plt.colorbar(sc, ax=ax, pad=0.08, label='Date')
 
             # Formatting
             ax.set_xlim(-0.03, 0.03)
@@ -51,14 +51,15 @@ def plot():
             ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
             # Labels
-            ax.text(0, -0.035, "ROTATION (deg)", ha='center', fontsize=12, fontweight='bold')
-            ax.text(0, 0.032, "N", ha='center', va='bottom', fontsize=12, fontweight='bold')
-            ax.text(0, -0.032, "S", ha='center', va='top', fontsize=12, fontweight='bold')
-            ax.text(0.032, 0, "E", ha='left', va='center', fontsize=12, fontweight='bold')
-            ax.text(-0.032, 0, "W", ha='right', va='center', fontsize=12, fontweight='bold')
+            ax.text(0, -0.045, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
+            ax.text(0, 0.032, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
+            ax.text(0, -0.032, "South", ha='center', va='top', fontsize=12, fontweight='bold')
+            ax.text(0.032, 0, "East", ha='left', va='center', fontsize=12, fontweight='bold')
+            ax.text(-0.032, 0, "West", ha='right', va='center', fontsize=12, fontweight='bold')
 
             plt.tight_layout()
-
+            plt.subplots_adjust(right=0.85, bottom=0.15)
+            
             # Save image
             buf = io.BytesIO()
             plt.savefig(buf, format='png', dpi=150, transparent=True)
