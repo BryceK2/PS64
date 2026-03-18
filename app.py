@@ -55,7 +55,7 @@ def plot():
             ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
             # Labels
-            ax.text(0, -0.040, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
+            ax.text(0, -0.042, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
             ax.text(0, 0.032, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
             ax.text(0, -0.032, "South", ha='center', va='top', fontsize=12, fontweight='bold')
             ax.text(0.032, 0, "East", ha='left', va='center', fontsize=12, fontweight='bold')
