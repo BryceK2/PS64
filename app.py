@@ -42,7 +42,7 @@ def plot():
 
             # Scatter
             sc = ax.scatter(xplot, yplot, c=dates, s=50, cmap='jet', edgecolors='none')
-            plt.colorbar(sc, ax=ax, pad=0.08, label='Date')
+            plt.colorbar(sc, ax=ax, pad=0.18, label='Date')
 
             # Formatting
             ax.set_xlim(-0.03, 0.03)
@@ -55,7 +55,7 @@ def plot():
             ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
             # Labels
-            ax.text(0, -0.045, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
+            ax.text(0, -0.040, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
             ax.text(0, 0.032, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
             ax.text(0, -0.032, "South", ha='center', va='top', fontsize=12, fontweight='bold')
             ax.text(0.032, 0, "East", ha='left', va='center', fontsize=12, fontweight='bold')
