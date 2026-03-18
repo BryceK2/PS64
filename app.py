@@ -34,7 +34,7 @@ def plot():
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
-                ax.text(r + 0.001, -0.002, f"{r:.2f}°", va='center', fontsize=10, fontweight='bold')
+                ax.text(r + 0.001, -0.005, f"{r:.2f}°", va='center', fontsize=10)
 
             # Draw crosshairs
             ax.plot([-0.03, 0.03], [0, 0], color='black', lw=1, zorder=0)
@@ -80,3 +80,8 @@ def plot():
         as_attachment=True,
         download_name='tilt_plots.zip'
     )
+    
+    if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
