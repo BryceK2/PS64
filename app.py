@@ -40,9 +40,54 @@ def plot():
             ax.plot([-0.03, 0.03], [0, 0], color='black', lw=1, zorder=0)
             ax.plot([0, 0], [-0.03, 0.03], color='black', lw=1, zorder=0)
 
-            # Scatter
-            sc = ax.scatter(xplot, yplot, c=dates, s=50, cmap='jet', edgecolors='none')
-            plt.colorbar(sc, ax=ax, pad=0.18, label='Date')
+            # -----------------------------
+            # Scatter with dynamic date range
+            # -----------------------------
+            date_min = dates.min()
+            date_max = dates.max()
+
+            sc = ax.scatter(
+                xplot, yplot,
+                c=dates,
+                s=50,
+                cmap='jet',
+                edgecolors='none'
+            )
+
+            sc.set_clim(date_min, date_max)
+
+            # -----------------------------
+            # Dynamic colorbar
+            # -----------------------------
+            cbar = plt.colorbar(sc, ax=ax, pad=0.18)
+            cbar.set_label('Date')
+
+            span_days = date_max - date_min
+
+            if span_days < 1:
+                num_ticks = 4
+            elif span_days < 7:
+                num_ticks = 5
+            else:
+                num_ticks = 6
+
+            tick_vals = np.linspace(date_min, date_max, num_ticks)
+
+            tick_labels = [
+                excel_to_datetime(d).strftime("%b %d\n%H:%M") if span_days < 2
+                else excel_to_datetime(d).strftime("%b %d")
+                for d in tick_vals
+            ]
+
+            cbar.set_ticks(tick_vals)
+            cbar.set_ticklabels(tick_labels)
+
+            # -----------------------------
+            # Optional: Start / End markers
+            # -----------------------------
+            ax.scatter(xplot[0], yplot[0], color='green', s=80, zorder=3)
+            ax.scatter(xplot[-1], yplot[-1], color='red', s=80, zorder=3)
+
 
             # Formatting
             ax.set_xlim(-0.03, 0.03)
@@ -81,7 +126,7 @@ def plot():
         download_name='tilt_plots.zip'
     )
     
-    if __name__ == "__main__":
+if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
