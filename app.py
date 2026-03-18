@@ -72,7 +72,12 @@ def plot():
             zf.writestr(f"{sensor_id}.png", buf.read())
 
     zip_buffer.seek(0)
-    return send_file(zip_buffer, mimetype='application/zip', as_attachment=True, attachment_filename='tilt_plots.zip')
+    return send_file(
+    zip_buffer,
+    mimetype='application/zip',
+    as_attachment=True,
+    download_name='tilt_plots.zip'  # <-- use download_name instead of attachment_filename
+)
 
 if __name__ == "__main__":
     app.run(debug=True)
