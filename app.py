@@ -31,17 +31,76 @@ def plot():
 
             fig, ax = plt.subplots(figsize=(6,6))
             ax.set_title("Tilt Meter Movement Bullseye", fontsize=14, fontweight='bold', pad=34)
+            
+            # -----------------------------
+# Compute radial magnitude
+# -----------------------------
+r_vals = np.sqrt(xplot**2 + yplot**2)
+r_max = np.max(r_vals)
 
-            # Draw circles
-            radii = [0.01, 0.02, 0.03]
-            for r in radii:
-                theta = np.linspace(0, 2*np.pi, 300)
-                ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
-                ax.text(r + 0.001, -0.005, f"{r:.2f}°", va='center', fontsize=10)
+# -----------------------------
+# Nice step function (FIXED)
+# -----------------------------
+def nice_step(value):
+    exponent = np.floor(np.log10(value))
+    fraction = value / (10**exponent)
 
-            # Draw crosshairs
-            ax.plot([-0.03, 0.03], [0, 0], color='black', lw=1, zorder=0)
-            ax.plot([0, 0], [-0.03, 0.03], color='black', lw=1, zorder=0)
+    if fraction <= 1:
+        nice_fraction = 1
+    elif fraction <= 2:
+        nice_fraction = 2
+    elif fraction <= 5:
+        nice_fraction = 5
+    else:
+        nice_fraction = 10
+
+    return nice_fraction * (10**exponent)
+
+# -----------------------------
+# Choose step (~3 rings)
+# -----------------------------
+raw_step = r_max / 3
+step = nice_step(raw_step)
+
+radii = [step, 2*step, 3*step]
+
+# -----------------------------
+# Set axis limits (FIXED)
+# -----------------------------
+limit = radii[-1] * 1.2
+ax.set_xlim(-limit, limit)
+ax.set_ylim(-limit, limit)
+
+# -----------------------------
+# Label formatter (FIXED LOCATION)
+# -----------------------------
+def format_radius(r):
+    if r < 0.01:
+        return f"{r:.3f}"
+    elif r < 1:
+        return f"{r:.2f}"
+    else:
+        return f"{r:.1f}"
+
+# -----------------------------
+# Draw circles
+# -----------------------------
+for r in radii:
+    theta = np.linspace(0, 2*np.pi, 300)
+    ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
+
+    ax.text(
+        r + 0.02 * limit,
+        -0.05 * limit,
+        format_radius(r),
+        fontsize=10
+    )
+
+# -----------------------------
+# Crosshairs (scaled properly)
+# -----------------------------
+ax.plot([-limit, limit], [0, 0], color='black', lw=1, zorder=0)
+ax.plot([0, 0], [-limit, limit], color='black', lw=1, zorder=0)
              
             # Scatter plot: each timestamp as a dot colored by date
             sc = ax.scatter(
