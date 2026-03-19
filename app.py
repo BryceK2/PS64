@@ -29,9 +29,6 @@ def plot():
             yplot = np.array(sensor["y"])
             dates = np.array(sensor["dates"], dtype=float)
 
-            # Swap axes if needed
-            xplot, yplot = yplot, xplot
-
             fig, ax = plt.subplots(figsize=(6,6))
 
             # Draw circles
@@ -71,72 +68,7 @@ def plot():
             ]
             cbar.set_ticks(tick_vals)
             cbar.set_ticklabels(tick_labels)
-
-            # Start (green) and End (red) markers
-            ax.scatter(xplot[0], yplot[0], color='green', s=80, zorder=4)
-            ax.scatter(xplot[-1], yplot[-1], color='red', s=80, zorder=4)
             
-            # # Scatter plot: each timestamp as a dot colored by date
-            # sc = ax.scatter(
-            #     xplot, yplot,
-            #     c=dates,
-            #     s=50,
-            #     cmap='jet',
-            #     edgecolors='none',
-            #     zorder=3
-            # )
-            # sc.set_clim(dates.min(), dates.max())
-
-            
-            # # -----------------------------
-            # # Scatter with dynamic date range
-            # # -----------------------------
-            # date_min = dates.min()
-            # date_max = dates.max()
-
-            # sc = ax.scatter(
-            #     xplot, yplot,
-            #     c=dates,
-            #     s=50,
-            #     cmap='jet',
-            #     edgecolors='none'
-            # )
-
-            # sc.set_clim(date_min, date_max)
-
-            # # -----------------------------
-            # # Dynamic colorbar
-            # # -----------------------------
-            # cbar = plt.colorbar(sc, ax=ax, pad=0.18)
-            # cbar.set_label('Date')
-
-            # span_days = date_max - date_min
-
-            # if span_days < 1:
-            #     num_ticks = 4
-            # elif span_days < 7:
-            #     num_ticks = 5
-            # else:
-            #     num_ticks = 6
-
-            # tick_vals = np.linspace(date_min, date_max, num_ticks)
-
-            # tick_labels = [
-            #     excel_to_datetime(d).strftime("%b %d\n%H:%M") if span_days < 2
-            #     else excel_to_datetime(d).strftime("%b %d")
-            #     for d in tick_vals
-            # ]
-
-            # cbar.set_ticks(tick_vals)
-            # cbar.set_ticklabels(tick_labels)
-
-            # # -----------------------------
-            # # Optional: Start / End markers
-            # # -----------------------------
-            # ax.scatter(xplot[0], yplot[0], color='green', s=80, zorder=3)
-            # ax.scatter(xplot[-1], yplot[-1], color='red', s=80, zorder=3)
-
-
             # Formatting
             ax.set_xlim(-0.03, 0.03)
             ax.set_ylim(-0.03, 0.03)
@@ -148,7 +80,7 @@ def plot():
             ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
             # Labels
-            ax.text(0, -0.042, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
+            ax.text(0, -0.044, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
             ax.text(0, 0.032, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
             ax.text(0, -0.032, "South", ha='center', va='top', fontsize=12, fontweight='bold')
             ax.text(0.032, 0, "East", ha='left', va='center', fontsize=12, fontweight='bold')
