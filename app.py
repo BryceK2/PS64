@@ -56,7 +56,6 @@ def plot():
 
             # Dynamic colorbar
             cbar = plt.colorbar(sc, ax=ax, pad=0.18)
-            cbar.set_label('Date', fontsize=10, fontweight='bold')
 
             # Auto-tick based on min/max dates
             span_days = dates.max() - dates.min()
@@ -64,7 +63,7 @@ def plot():
             tick_vals = np.linspace(dates.min(), dates.max(), num_ticks)
             tick_labels = [
                 excel_to_datetime(d).strftime("%b %d\n%H:%M") if span_days < 2
-                else excel_to_datetime(d).strftime("%b %d")
+                else excel_to_datetime(d).strftime("%b %d %Y")
                 for d in tick_vals
             ]
             cbar.set_ticks(tick_vals)
