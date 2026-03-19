@@ -30,7 +30,7 @@ def plot():
             dates = np.array(sensor["dates"], dtype=float)
 
             fig, ax = plt.subplots(figsize=(6,6))
-            ax.set_title("Tilt Meter Movement Bullseye", fontsize=14, fontweight='bold', pad=18)
+            ax.set_title("Tilt Meter Movement Bullseye", fontsize=14, fontweight='bold', pad=4)
 
             # Draw circles
             radii = [0.01, 0.02, 0.03]
