@@ -1,4 +1,6 @@
 from flask import Flask, request, send_file, jsonify
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import io
@@ -106,11 +108,10 @@ def plot():
         download_name='tilt_plots.zip'
     )
 
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
-    # import os
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(host="0.0.0.0", port=port)
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     import os
+#     port = int(os.environ.get("PORT", 5000))
+#     # import os
+#     # port = int(os.environ.get("PORT", 5000))
+#     # app.run(host="0.0.0.0", port=port)
+#     app.run(debug=True)
