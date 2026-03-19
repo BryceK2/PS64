@@ -30,6 +30,7 @@ def plot():
             dates = np.array(sensor["dates"], dtype=float)
 
             fig, ax = plt.subplots(figsize=(6,6))
+            ax.set_title("Tilt Meter Movement Bullseye", fontsize=14, fontweight='bold', pad=15)
 
             # Draw circles
             radii = [0.01, 0.02, 0.03]
@@ -87,7 +88,7 @@ def plot():
             ax.text(-0.032, 0, "West", ha='right', va='center', fontsize=12, fontweight='bold')
 
             plt.tight_layout()
-            plt.subplots_adjust(right=0.85, bottom=0.15)
+            plt.subplots_adjust(right=0.85, bottom=0.15, top=0.90)
             
             # Save image
             buf = io.BytesIO()
