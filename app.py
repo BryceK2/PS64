@@ -25,8 +25,8 @@ def plot():
         for sensor in sensors:
             sensor_id = sensor.get("id", "unknown")
 
-            xplot = np.array(sensor["x"])
-            yplot = np.array(sensor["y"])
+            xplot = np.array(sensor["ew"])
+            yplot = np.array(sensor["ns"])
             dates = np.array(sensor["dates"], dtype=float)
 
             fig, ax = plt.subplots(figsize=(6,6))
