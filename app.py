@@ -11,40 +11,10 @@ app = Flask(__name__)
 def excel_to_datetime(excel_date):
     return datetime(1899, 12, 30) + timedelta(days=float(excel_date))
 
-@app.route('/plot', methods=['POST'])
-def plot():
-    data = request.get_json()
-    sensors = data.get("sensors", [])
-
-    if not sensors:
-        return jsonify({"error": "No sensor data provided"}), 400
-
-    zip_buffer = io.BytesIO()
-
-    with zipfile.ZipFile(zip_buffer, "w") as zf:
-        for sensor in sensors:
-            sensor_id = sensor.get("id", "unknown")
-
-            xplot = np.array(sensor["ew"])
-            yplot = np.array(sensor["ns"])
-            dates = np.array(sensor["dates"], dtype=float)
-
-            fig, ax = plt.subplots(figsize=(6,6))
-            ax.set_title("Tilt Meter Movement Bullseye", fontsize=14, fontweight='bold', pad=34)
-            
-            # -----------------------------
-# Compute radial magnitude
-# -----------------------------
-r_vals = np.sqrt(xplot**2 + yplot**2)
-r_max = np.max(r_vals)
-
-# -----------------------------
-# Nice step function (FIXED)
-# -----------------------------
+# "Nice" step function for axis/ring scaling
 def nice_step(value):
     exponent = np.floor(np.log10(value))
     fraction = value / (10**exponent)
-
     if fraction <= 1:
         nice_fraction = 1
     elif fraction <= 2:
@@ -53,70 +23,72 @@ def nice_step(value):
         nice_fraction = 5
     else:
         nice_fraction = 10
-
     return nice_fraction * (10**exponent)
 
-# -----------------------------
-# Choose step (~3 rings)
-# -----------------------------
-raw_step = r_max / 3
-step = nice_step(raw_step)
+@app.route('/plot', methods=['POST'])
+def plot():
+    data = request.get_json()
+    sensors = data.get("sensors", [])
 
-radii = [step, 2*step, 3*step]
+    if not sensors:
+        return jsonify({"error": "No sensor data provided"}), 400
 
-# -----------------------------
-# Set axis limits (FIXED)
-# -----------------------------
-limit = radii[-1] * 1.2
-ax.set_xlim(-limit, limit)
-ax.set_ylim(-limit, limit)
+    # -----------------------------
+    # Compute global max radius for all sensors
+    # -----------------------------
+    all_radii = []
+    for sensor in sensors:
+        x = np.array(sensor["x"])
+        y = np.array(sensor["y"])
+        all_radii.extend(np.sqrt(x**2 + y**2))
+    global_r_max = np.max(all_radii) if all_radii else 0.001
 
-# -----------------------------
-# Label formatter (FIXED LOCATION)
-# -----------------------------
-def format_radius(r):
-    if r < 0.01:
-        return f"{r:.3f}"
-    elif r < 1:
-        return f"{r:.2f}"
-    else:
-        return f"{r:.1f}"
+    raw_step = global_r_max / 3
+    step = nice_step(raw_step)
+    global_radii = [step, 2*step, 3*step]
+    limit = global_radii[-1] * 1.2
 
-# -----------------------------
-# Draw circles
-# -----------------------------
-for r in radii:
-    theta = np.linspace(0, 2*np.pi, 300)
-    ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zf:
+        for sensor in sensors:
+            sensor_id = sensor.get("id", "unknown")
+            xplot = np.array(sensor["x"])
+            yplot = np.array(sensor["y"])
+            dates = np.array(sensor["dates"], dtype=float)
 
-    ax.text(
-        r + 0.02 * limit,
-        -0.05 * limit,
-        format_radius(r),
-        fontsize=10
-    )
+            fig, ax = plt.subplots(figsize=(6,6))
+            ax.set_title("Tilt Monitor", fontsize=14, fontweight='bold', pad=34)
 
-# -----------------------------
-# Crosshairs (scaled properly)
-# -----------------------------
-ax.plot([-limit, limit], [0, 0], color='black', lw=1, zorder=0)
-ax.plot([0, 0], [-limit, limit], color='black', lw=1, zorder=0)
-             
-            # Scatter plot: each timestamp as a dot colored by date
-            sc = ax.scatter(
-                xplot, yplot,
-                c=dates,
-                s=50,
-                cmap='jet',
-                edgecolors='none',
-                zorder=3
-            )
+            # -----------------------------
+            # Draw circles
+            # -----------------------------
+            def format_radius(r):
+                if r < 0.01:
+                    return f"{r:.3f}"
+                elif r < 1:
+                    return f"{r:.2f}"
+                else:
+                    return f"{r:.1f}"
+
+            for r in global_radii:
+                theta = np.linspace(0, 2*np.pi, 300)
+                ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
+                ax.text(r + 0.02*limit, -0.05*limit, format_radius(r), fontsize=10)
+
+            # -----------------------------
+            # Crosshairs
+            # -----------------------------
+            ax.plot([-limit, limit], [0,0], color='black', lw=1, zorder=0)
+            ax.plot([0,0], [-limit, limit], color='black', lw=1, zorder=0)
+
+            # -----------------------------
+            # Scatter: timestamps as dots colored by date
+            # -----------------------------
+            sc = ax.scatter(xplot, yplot, c=dates, s=50, cmap='jet', edgecolors='none', zorder=3)
             sc.set_clim(dates.min(), dates.max())
 
-            # Dynamic colorbar
+            # Colorbar
             cbar = plt.colorbar(sc, ax=ax, pad=0.18)
-
-            # Auto-tick based on min/max dates
             span_days = dates.max() - dates.min()
             num_ticks = 4 if span_days < 1 else 5 if span_days < 7 else 6
             tick_vals = np.linspace(dates.min(), dates.max(), num_ticks)
@@ -127,18 +99,25 @@ ax.plot([0, 0], [-limit, limit], color='black', lw=1, zorder=0)
             ]
             cbar.set_ticks(tick_vals)
             cbar.set_ticklabels(tick_labels)
-            
-            # Formatting
-            ax.set_xlim(-0.03, 0.03)
-            ax.set_ylim(-0.03, 0.03)
+            cbar.set_label('Date', fontsize=10, fontweight='bold')
+
+            # -----------------------------
+            # Start/End markers
+            # -----------------------------
+            ax.scatter(xplot[0], yplot[0], color='green', s=80, zorder=4)
+            ax.scatter(xplot[-1], yplot[-1], color='red', s=80, zorder=4)
+
+            # -----------------------------
+            # Axes formatting & labels
+            # -----------------------------
+            ax.set_xlim(-limit, limit)
+            ax.set_ylim(-limit, limit)
             ax.set_aspect('equal')
 
-            # Remove box
             for spine in ax.spines.values():
                 spine.set_visible(False)
             ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
-            # Labels
             ax.text(0, -0.044, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
             ax.text(0, 0.032, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
             ax.text(0, -0.032, "South", ha='center', va='top', fontsize=12, fontweight='bold')
@@ -147,26 +126,21 @@ ax.plot([0, 0], [-limit, limit], color='black', lw=1, zorder=0)
 
             plt.tight_layout()
             plt.subplots_adjust(right=0.85, bottom=0.15, top=0.90)
-            
-            # Save image
+
+            # Save to zip
             buf = io.BytesIO()
             plt.savefig(buf, format='png', dpi=150, transparent=True)
             plt.close(fig)
             buf.seek(0)
-
             zf.writestr(f"{sensor_id}.png", buf.read())
 
     zip_buffer.seek(0)
-
     return send_file(
         zip_buffer,
         mimetype='application/zip',
         as_attachment=True,
         download_name='tilt_plots.zip'
     )
-    
+
 if __name__ == "__main__":
-    # import os
-    # port = int(os.environ.get("PORT", 5000))
-    # app.run(host="0.0.0.0", port=port)
     app.run(debug=True)
