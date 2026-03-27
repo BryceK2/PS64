@@ -48,7 +48,7 @@ def plot():
 
             # # Draw circles
             label_offset = spacing * 0.1  # small fraction of spacing
-            offset = max(r * 0.1, 0.005)
+            offset = spacing * 0.5 + 0.005
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
