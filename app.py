@@ -94,10 +94,10 @@ def plot():
 
             # Labels
             # ax.text(0, -0.044, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
-            ax.text(0, 0.034, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
-            ax.text(0, -0.034, "South", ha='center', va='top', fontsize=12, fontweight='bold')
-            ax.text(0.034, 0, "East", ha='left', va='center', fontsize=12, fontweight='bold')
-            ax.text(-0.034, 0, "West", ha='right', va='center', fontsize=12, fontweight='bold')
+            ax.text(0, radii[2]+0.002, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
+            ax.text(0, -radii[2]-0.002, "South", ha='center', va='top', fontsize=12, fontweight='bold')
+            ax.text(radii[2]+0.002, 0, "East", ha='left', va='center', fontsize=12, fontweight='bold')
+            ax.text(-radii[2]-0.002, 0, "West", ha='right', va='center', fontsize=12, fontweight='bold')
 
             plt.tight_layout()
             plt.subplots_adjust(right=0.85, bottom=0.15, top=0.90)
