@@ -60,17 +60,16 @@ def plot():
             # Convert dates to day-of-year for fixed Jan–Dec coloring
             dates_dt = np.array([excel_to_datetime(d) for d in dates])
             day_of_year = np.array([d.timetuple().tm_yday for d in dates_dt])
-            colors = day_of_year - 1  # zero-indexed for colormap
             
             sc = ax.scatter(
                 xplot, yplot,
-                c=wrapped,
+                c=day_of_year,
                 s=50,
                 cmap='jet',
                 edgecolors='none',
                 zorder=3
             )
-            sc.set_clim(0, 365)
+            sc.set_clim(1, 365)
 
              # Colorbar with month ticks
             month_starts = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334] 
