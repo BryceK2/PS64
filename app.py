@@ -45,49 +45,29 @@ def plot():
             ax.plot([-0.03, 0.03], [0, 0], color='black', lw=1, zorder=0)
             ax.plot([0, 0], [-0.03, 0.03], color='black', lw=1, zorder=0)
 
-            # # Scatter plot: each timestamp as a dot colored by date
-            # sc = ax.scatter(
-            #     xplot, yplot,
-            #     c=dates,
-            #     s=50,
-            #     cmap='jet',
-            #     edgecolors='none',
-            #     zorder=3
-            # )
-            # sc.set_clim(dates.min(), dates.max())
-            start = dates.min()
-            year_span = 365
-
-            # Wrap dates to 0–365 range
-            wrapped = (dates - start) % year_span
-
+            # Convert dates to day-of-year for fixed Jan–Dec coloring
+            dates_dt = np.array([excel_to_datetime(d) for d in dates])
+            day_of_year = np.array([d.timetuple().tm_yday for d in dates_dt])
+            colors = day_of_year - 1  # zero-indexed for colormap
+            
             sc = ax.scatter(
                 xplot, yplot,
                 c=wrapped,
                 s=50,
-                cmap='twilight',
+                cmap='jet',
                 edgecolors='none',
                 zorder=3
             )
-            sc.set_clim(0, year_span)
+            sc.set_clim(0, 365)
 
-            # Dynamic colorbar
+             # Colorbar with month ticks
+            month_starts = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334] 
+            month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
             cbar = plt.colorbar(sc, ax=ax, pad=0.18)
-
-            # Auto-tick based on min/max dates
-            # span_days = dates.max() - dates.min()
-            # num_ticks = 4 if span_days < 1 else 5 if span_days < 7 else 6
-            # tick_vals = np.linspace(dates.min(), dates.max(), num_ticks)
-            # tick_labels = [
-            #     excel_to_datetime(d).strftime("%b %d\n%H:%M") if span_days < 2
-            #     else excel_to_datetime(d).strftime("%b %d %Y")
-            #     for d in tick_vals
-            # ]
-            tick_vals = np.linspace(0, 365, 6, endpoint=False)
-            tick_labels = [f"{int(t)} d" for t in tick_vals]
-
-            cbar.set_ticks(tick_vals)
-            cbar.set_ticklabels(tick_labels)
+            cbar.set_ticks(month_starts)
+            cbar.set_ticklabels(month_labels)
 
             # Formatting
             max_r = max(radii)
@@ -96,6 +76,7 @@ def plot():
 
             ax.set_xlim(-limit, limit)
             ax.set_ylim(-limit, limit)
+            ax.set_aspect('equal')
 
             # Remove box
             for spine in ax.spines.values():
@@ -128,11 +109,3 @@ def plot():
         as_attachment=True,
         download_name='tilt_plots.zip'
     )
-
-# if __name__ == "__main__":
-#     import os
-#     port = int(os.environ.get("PORT", 5000))
-#     # import os
-#     # port = int(os.environ.get("PORT", 5000))
-#     # app.run(host="0.0.0.0", port=port)
-#     app.run(debug=True)
