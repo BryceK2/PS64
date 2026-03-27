@@ -39,42 +39,63 @@ def plot():
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
-                ax.text(r + 0.001, -0.005, f"{r:.2f}°", va='center', fontsize=10)
+                ax.text(r + 0.001, -0.005, f"{r:.2f}°", va='center', fontsize=10, zorder=4)
 
             # Draw crosshairs
             ax.plot([-0.03, 0.03], [0, 0], color='black', lw=1, zorder=0)
             ax.plot([0, 0], [-0.03, 0.03], color='black', lw=1, zorder=0)
 
-            # Scatter plot: each timestamp as a dot colored by date
+            # # Scatter plot: each timestamp as a dot colored by date
+            # sc = ax.scatter(
+            #     xplot, yplot,
+            #     c=dates,
+            #     s=50,
+            #     cmap='jet',
+            #     edgecolors='none',
+            #     zorder=3
+            # )
+            # sc.set_clim(dates.min(), dates.max())
+            start = dates.min()
+            year_span = 365
+
+            # Wrap dates to 0–365 range
+            wrapped = (dates - start) % year_span
+
             sc = ax.scatter(
                 xplot, yplot,
-                c=dates,
+                c=wrapped,
                 s=50,
-                cmap='jet',
+                cmap='twilight',
                 edgecolors='none',
                 zorder=3
             )
-            sc.set_clim(dates.min(), dates.max())
+            sc.set_clim(0, year_span)
 
             # Dynamic colorbar
             cbar = plt.colorbar(sc, ax=ax, pad=0.18)
 
             # Auto-tick based on min/max dates
-            span_days = dates.max() - dates.min()
-            num_ticks = 4 if span_days < 1 else 5 if span_days < 7 else 6
-            tick_vals = np.linspace(dates.min(), dates.max(), num_ticks)
-            tick_labels = [
-                excel_to_datetime(d).strftime("%b %d\n%H:%M") if span_days < 2
-                else excel_to_datetime(d).strftime("%b %d %Y")
-                for d in tick_vals
-            ]
+            # span_days = dates.max() - dates.min()
+            # num_ticks = 4 if span_days < 1 else 5 if span_days < 7 else 6
+            # tick_vals = np.linspace(dates.min(), dates.max(), num_ticks)
+            # tick_labels = [
+            #     excel_to_datetime(d).strftime("%b %d\n%H:%M") if span_days < 2
+            #     else excel_to_datetime(d).strftime("%b %d %Y")
+            #     for d in tick_vals
+            # ]
+            tick_vals = np.linspace(0, 365, 6, endpoint=False)
+            tick_labels = [f"{int(t)} d" for t in tick_vals]
+
             cbar.set_ticks(tick_vals)
             cbar.set_ticklabels(tick_labels)
 
             # Formatting
-            ax.set_xlim(-0.03, 0.03)
-            ax.set_ylim(-0.03, 0.03)
-            ax.set_aspect('equal')
+            max_r = max(radii)
+            padding = 0.002
+            limit = max_r + padding
+
+            ax.set_xlim(-limit, limit)
+            ax.set_ylim(-limit, limit)
 
             # Remove box
             for spine in ax.spines.values():
