@@ -34,16 +34,28 @@ def plot():
             fig, ax = plt.subplots(figsize=(6,6))
             ax.set_title(f"Tilt Meter: {str(sensor_id)}", fontsize=14, fontweight='bold', pad=34)
 
-            # Draw circles
-            radii = [0.01, 0.02, 0.03]
+            # Determine ring spacing dynamically
+            base_spacing = 0.01
+            max_tilt = max(np.abs(xplot).max(), np.abs(yplot).max())
+
+            # Calculate a scaling factor: ceil(max_tilt / 0.03)
+            scale_factor = int(np.ceil(max_tilt / 0.03))
+            if scale_factor < 1:
+                scale_factor = 1
+
+            spacing = base_spacing * scale_factor
+            radii = [spacing * i for i in range(1, 4)]  # 3 rings
+
+            # # Draw circles
+            # radii = [0.01, 0.02, 0.03]
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
                 ax.text(r + 0.001, -0.005, f"{r:.2f}°", va='center', fontsize=10, zorder=4)
 
             # Draw crosshairs
-            ax.plot([-0.03, 0.03], [0, 0], color='black', lw=1, zorder=0)
-            ax.plot([0, 0], [-0.03, 0.03], color='black', lw=1, zorder=0)
+            ax.plot([-radii[2], radii[2]], [0, 0], color='black', lw=1, zorder=0)
+            ax.plot([0, 0], [-radii[2], radii[2]], color='black', lw=1, zorder=0)
 
             # Convert dates to day-of-year for fixed Jan–Dec coloring
             dates_dt = np.array([excel_to_datetime(d) for d in dates])
@@ -70,10 +82,8 @@ def plot():
             cbar.set_ticklabels(month_labels)
 
             # Formatting
-            max_r = max(radii)
-            padding = 0.002
-            limit = max_r + padding
-
+            padding = spacing * 0.2
+            limit = radii[-1] + padding
             ax.set_xlim(-limit, limit)
             ax.set_ylim(-limit, limit)
             ax.set_aspect('equal')
