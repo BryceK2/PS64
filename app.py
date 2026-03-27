@@ -48,10 +48,11 @@ def plot():
 
             # # Draw circles
             # radii = [0.01, 0.02, 0.03]
+            label_offset = spacing * 0.1  # small fraction of spacing
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
-                ax.text(r + 0.001, -0.005, f"{r:.2f}°", va='center', fontsize=10, zorder=4)
+                ax.text(r + label_offset, -label_offset, f"{r:.2f}°", va='center', fontsize=10, zorder=4)
 
             # Draw crosshairs
             ax.plot([-radii[2], radii[2]], [0, 0], color='black', lw=1, zorder=0)
@@ -72,7 +73,7 @@ def plot():
             sc.set_clim(1, 365)
 
              # Colorbar with month ticks
-            month_starts = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334] 
+            month_starts = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]
             month_labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
@@ -92,12 +93,16 @@ def plot():
                 spine.set_visible(False)
             ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
-            # Labels
-            # ax.text(0, -0.044, "Rotation (°)", ha='center', fontsize=12, fontweight='bold')
-            ax.text(0, radii[2]+0.002, "North", ha='center', va='bottom', fontsize=12, fontweight='bold')
-            ax.text(0, -radii[2]-0.002, "South", ha='center', va='top', fontsize=12, fontweight='bold')
-            ax.text(radii[2]+0.002, 0, "East", ha='left', va='center', fontsize=12, fontweight='bold')
-            ax.text(-radii[2]-0.002, 0, "West", ha='right', va='center', fontsize=12, fontweight='bold')
+            # Labels (positioned just outside outer ring + scaled offset)
+            label_offset_factor = 1.5
+            ax.text(0, radii[-1] + label_offset*label_offset_factor, "North",
+                    ha='center', va='bottom', fontsize=12, fontweight='bold')
+            ax.text(0, -radii[-1] - label_offset*label_offset_factor, "South",
+                    ha='center', va='top', fontsize=12, fontweight='bold')
+            ax.text(radii[-1] + label_offset*label_offset_factor, 0, "East",
+                    ha='left', va='center', fontsize=12, fontweight='bold')
+            ax.text(-radii[-1] - label_offset*label_offset_factor, 0, "West",
+                    ha='right', va='center', fontsize=12, fontweight='bold')
 
             plt.tight_layout()
             plt.subplots_adjust(right=0.85, bottom=0.15, top=0.90)
