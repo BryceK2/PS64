@@ -47,7 +47,7 @@ def plot():
             radii = [spacing * i for i in range(1, 4)]  # 3 rings
 
             # # Draw circles
-            label_offset = spacing * 0.1  # small fraction of spacing
+            label_offset = spacing * 0.02  # small fraction of spacing
             offset = spacing * 0.5 + 0.005
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
