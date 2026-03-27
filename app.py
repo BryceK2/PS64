@@ -47,12 +47,11 @@ def plot():
             radii = [spacing * i for i in range(1, 4)]  # 3 rings
 
             # # Draw circles
-            # radii = [0.01, 0.02, 0.03]
             label_offset = spacing * 0.1  # small fraction of spacing
             for r in radii:
                 theta = np.linspace(0, 2*np.pi, 300)
                 ax.plot(r*np.cos(theta), r*np.sin(theta), color='black', lw=1)
-                ax.text(r + label_offset, -label_offset, f"{r:.2f}°", va='center', fontsize=10, zorder=4)
+                ax.text(r + label_offset, -label_offset-0.015, f"{r:.2f}°", va='center', fontsize=10, zorder=4)
 
             # Draw crosshairs
             ax.plot([-radii[2], radii[2]], [0, 0], color='black', lw=1, zorder=0)
