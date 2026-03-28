@@ -94,7 +94,7 @@ def plot():
             ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
             # Labels (positioned just outside outer ring + scaled offset)
-            label_offset_factor = 1.5
+            label_offset_factor = 2.5
             ax.text(0, radii[-1] + label_offset*label_offset_factor, "North",
                     ha='center', va='bottom', fontsize=12, fontweight='bold')
             ax.text(0, -radii[-1] - label_offset*label_offset_factor, "South",
