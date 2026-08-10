@@ -36,15 +36,16 @@ def plot():
 
             # Determine ring spacing dynamically
             base_spacing = 0.01
-            max_tilt = max(np.abs(xplot).max(), np.abs(yplot).max())
+            radial_distances = np.sqrt(xplot**2 + yplot**2)
+            max_tilt = radial_distances.max()
 
-            # Calculate a scaling factor: ceil(max_tilt / 0.03)
+            # Calculate scale_factor 
             scale_factor = int(np.ceil(max_tilt / 0.03))
             if scale_factor < 1:
                 scale_factor = 1
 
             spacing = base_spacing * scale_factor
-            radii = [spacing * i for i in range(1, 4)]  # 3 rings
+            radii = [round(spacing * i, 4) for i in range(1, 4)]
 
             # # Draw circles
             label_offset = spacing * 0.02  # small fraction of spacing
